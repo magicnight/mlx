@@ -34,8 +34,10 @@ mkdir -p "$OUTPUT_DIR"
 CCC="xcrun -sdk macosx metal -x metal"
 HDRS=$( $CCC -I"$SRC_DIR" -I"$JIT_INCLUDES" -DMLX_METAL_JIT -E -P -CC -C -H "$INPUT_FILE" $CFLAGS -w 2>&1 1>/dev/null )
 
-# Remove any included system frameworks (for MetalPerformancePrimitive headers)
-HDRS=$(echo "$HDRS" | grep -v "Xcode")
+# Remove any included system frameworks (for MetalPerformancePrimitive headers).
+# Match "Xcode.app" rather than bare "Xcode" so project checkouts that live under
+# a directory named Xcode/ are not filtered out along with the SDK headers.
+HDRS=$(echo "$HDRS" | grep -v "Xcode.app")
 
 # Use the header depth to sort the files in order of inclusion
 declare -a HDRS_LIST=($HDRS)
